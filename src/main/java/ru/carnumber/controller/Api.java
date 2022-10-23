@@ -25,7 +25,7 @@ public class Api {
             @ApiResponse(responseCode = "200", description = "get random car number", content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "400", description = "bad request")})
     @GetMapping(value = "/random")
-    String getRandomCarNumber() {
+    String getRandomCarNumber() throws AllNumbersUsedException {
         return service.getRandomCarNumber();
     }
 

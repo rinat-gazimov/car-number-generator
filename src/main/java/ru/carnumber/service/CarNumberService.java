@@ -16,10 +16,20 @@ import java.util.Random;
 public class CarNumberService {
 
     private final Map<String, CarNumber> map = new LinkedHashMap<>();
-    private final List<String> dictionary = Arrays.asList("А", "В", "Е", "К", "М", "Н", "О", "Р", "С", "Т", "У", "Х");
+    private static final List<String> DICTIONARY = Arrays.asList("А", "В", "Е", "К", "М", "Н", "О", "Р", "С", "Т", "У", "Х");
     private final Random random = new Random();
+    private static final int MAX_VALUE = 1728000;
+    private final static int MAX_NUMBER = 999;
 
-    public String getRandomCarNumber() {
+    /**
+     * метод возвоащает строку с новым номером автомобиля
+     * @return новый автомобильный номер
+     * @throws AllNumbersUsedException ошибка возникает, если уже сгенерированы все номера автомобилейException
+     */
+    public String getRandomCarNumber() throws AllNumbersUsedException {
+        if (map.size() == MAX_VALUE) {
+            throw new AllNumbersUsedException();
+        }
         CarNumber carNumber = generateCarNumber();
         while (map.containsKey(carNumber.toString())) {
             carNumber = generateCarNumber();
@@ -32,11 +42,14 @@ public class CarNumberService {
     /**
      * метод возвращает следующий по порядку автомобильный номер
      * @return следующий автомобильный номер
-     * @throws AllNumbersUsedException ошибка возникает, если
+     * @throws AllNumbersUsedException ошибка возникает, если уже сгенерированы все номера автомобилей
      */
     public String getNextCarNumber() throws AllNumbersUsedException, EmptyCarNumberListException {
         if (map.isEmpty()) {
             throw new EmptyCarNumberListException();
+        }
+        if (map.size() == MAX_VALUE) {
+            throw new AllNumbersUsedException();
         }
         CarNumber newCarNumber = (CarNumber) map.values().toArray()[map.entrySet().size() -1];
         while (map.containsKey(newCarNumber.toString())) {
@@ -46,22 +59,22 @@ public class CarNumberService {
                     newCarNumber.getSecond(),
                     newCarNumber.getThird(),
                     newCarNumber.getRegion());
-            if (lastCarNumber.getNumber() == 999) {
+            if (lastCarNumber.getNumber() == MAX_NUMBER) {
                 newCarNumber.setNumber(0);
-                if (lastCarNumber.getThird().equals(dictionary.get(dictionary.size() - 1))) {
-                    newCarNumber.setThird(dictionary.get(0));
-                    if (lastCarNumber.getSecond().equals(dictionary.get(dictionary.size() - 1))) {
-                        newCarNumber.setSecond(dictionary.get(0));
-                        if (lastCarNumber.getFirst().equals(dictionary.get(dictionary.size() - 1))) {
-                            throw new AllNumbersUsedException();
+                if (lastCarNumber.getThird().equals(DICTIONARY.get(DICTIONARY.size() - 1))) {
+                    newCarNumber.setThird(DICTIONARY.get(0));
+                    if (lastCarNumber.getSecond().equals(DICTIONARY.get(DICTIONARY.size() - 1))) {
+                        newCarNumber.setSecond(DICTIONARY.get(0));
+                        if (lastCarNumber.getFirst().equals(DICTIONARY.get(DICTIONARY.size() - 1))) {
+                            newCarNumber.setFirst(DICTIONARY.get(0));
                         } else {
-                            newCarNumber.setFirst(dictionary.get(dictionary.indexOf(lastCarNumber.getFirst()) + 1));
+                            newCarNumber.setFirst(DICTIONARY.get(DICTIONARY.indexOf(lastCarNumber.getFirst()) + 1));
                         }
                     } else {
-                        newCarNumber.setSecond(dictionary.get(dictionary.indexOf(lastCarNumber.getSecond()) + 1));
+                        newCarNumber.setSecond(DICTIONARY.get(DICTIONARY.indexOf(lastCarNumber.getSecond()) + 1));
                     }
                 } else {
-                    newCarNumber.setThird(dictionary.get(dictionary.indexOf(lastCarNumber.getThird()) + 1));
+                    newCarNumber.setThird(DICTIONARY.get(DICTIONARY.indexOf(lastCarNumber.getThird()) + 1));
                 }
             } else {
                 newCarNumber.setNumber(lastCarNumber.getNumber() + 1);
@@ -78,13 +91,12 @@ public class CarNumberService {
      * @return объект CarNumber
      */
     private CarNumber generateCarNumber() {
-        String region = " 116 RUS";
         return new CarNumber(
-                dictionary.get(random.nextInt(dictionary.size())),
-                random.nextInt(999),
-                dictionary.get(random.nextInt(dictionary.size())),
-                dictionary.get(random.nextInt(dictionary.size())),
-                region
+                DICTIONARY.get(random.nextInt(DICTIONARY.size())),
+                random.nextInt(MAX_NUMBER),
+                DICTIONARY.get(random.nextInt(DICTIONARY.size())),
+                DICTIONARY.get(random.nextInt(DICTIONARY.size())),
+                " 116 RUS"
         );
     }
 
